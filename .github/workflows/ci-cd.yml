@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: self-hosted   # EC2 self-hosted runner
+    runs-on: self-hosted
 
     steps:
       # 1. Checkout source code
@@ -18,20 +18,20 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       # 3. Build Docker image
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/node-app:latest .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:latest .
 
-      # 4. Push Docker image to Docker Hub
+      # 4. Push Docker image
       - name: Push Docker image
         run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/node-app:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:latest
 
-      # 5. Stop and remove old container (if exists)
+      # 5. Stop old container
       - name: Stop old container
         run: |
           docker stop node-app || true
@@ -43,4 +43,4 @@ jobs:
           docker run -d \
             --name node-app \
             -p 3000:3000 \
-            ${{ secrets.DOCKERHUB_USERNAME }}/node-app:latest
+            ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:latest
